@@ -1,28 +1,35 @@
-function _Build
-{
-  Push-Location ./build
-  cmake .. -DCMAKE_BUILD_TYPE="Debug"
-  cmake --build .
-  Pop-Location
+$project = Split-Path -Path (Get-Location) -Leaf
+
+function build {
+  New-Item -Type Directory -Path build -ErrorAction Ignore
+    Push-Location build
+    cmake -G"Ninja" .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake --build .
+    Pop-Location
 }
 
-function _Run
-{
-  _Build
-  if ($LASTEXITCODE -eq 0)
-  {
-    ./build/synth
-  }
+function run {
+  Push-Location build
+    $command = './' + $project
+    Invoke-Expression $command
+    Pop-Location
 }
 
-switch($args[0])
-{
-  "run"
-  {
-    _Run 
+switch ($args[0]) {
+  "build" {
+    build
   }
-  default
-  {
-    _Build
+
+  "run" {
+    build
+      run $args[1]
+  }
+
+  "clean" {
+    Remove-Item -Force -Recurse -Path "./build"
+  }
+  
+  default {
+    run
   }
 }

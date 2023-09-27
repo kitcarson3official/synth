@@ -30,12 +30,13 @@ using std::optional;
  */
 const float LA_FREQ = 440.;
 const int SAMPLING_RATE = 44'100;
-const float sample_time = 1./44'100.;
+const float sample_time = 1. / 44'100.;
 
-void synth_callback(void *userdata, unsigned char *_buffer, int len) {
+void synth_callback([[__maybe_unused__]] void *userdata, unsigned char *_buffer,
+                    int len) {
   auto buffer = reinterpret_cast<float *>(_buffer);
-  const unsigned int N = len/sizeof(float);
-  for (int i = 0; i < N; ++i) {
+  const unsigned int N = len / sizeof(float);
+  for (unsigned int i = 0; i < N; ++i) {
     buffer[i] = 100. * sinf(2 * M_PI * LA_FREQ * sample_time * (float)i);
   }
 }
@@ -57,7 +58,7 @@ optional<SDL_AudioDeviceID> synth_init_audio_device() {
 
 } // namespace synth
 
-int main(void) {
+int main([[__maybe_unused__]] int argc, [[__maybe_unused__]] char **argv) {
   using namespace synth;
   SDL_check(SDL_Init(SDL_INIT_AUDIO), "Init audio");
   auto adi = synth_init_audio_device();
@@ -67,6 +68,7 @@ int main(void) {
     SDL_Log("adi failed\n");
     exit(1);
   }
-  while(true);
+  while (true)
+    ;
   return 0;
 }
